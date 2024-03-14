@@ -197,15 +197,23 @@ public class MainActivity extends AppCompatActivity {
                                             List<PointF> leftEyeContour =
                                                     face.getContour(FaceContour.LEFT_EYE).getPoints();
 
-                                            // draw counter
-                                            for(PointF point : leftEyeContour )
-                                            {
-                                                canvas.drawPoint(point.x, point.y,p2);
-                                            }
+
 
                                             List<PointF> upperLipBottomContour =
                                                     face.getContour(FaceContour.UPPER_LIP_BOTTOM).getPoints();
 
+                                      List<FaceContour>  faceContours =     face.getAllContours();
+
+
+                                      for(FaceContour faceContour:faceContours)
+                                      {
+                                           List<PointF> pointFS = faceContour.getPoints();
+                                          // draw counter
+                                          for(PointF point : pointFS)
+                                          {
+                                              canvas.drawPoint(point.x, point.y,p2);
+                                          }
+                                      }
                                             // If classification was enabled:
                                             if (face.getSmilingProbability() != null) {
                                                 float smileProb = face.getSmilingProbability();
