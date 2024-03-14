@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView innerImage;
     private Uri image_uri;
     TextView resultTv;
+
+    FaceDetector detector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +93,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //TODO initalize face detector
+        // High-accuracy landmark detection and face classification
+        FaceDetectorOptions highAccuracyOpts =
+                new FaceDetectorOptions.Builder()
+                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+                        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                        .build();
+        detector = FaceDetection.getClient(highAccuracyOpts);
+
 
 
 
@@ -142,6 +154,58 @@ public class MainActivity extends AppCompatActivity {
         Bitmap rotated = rotateBitmap(mutableBmp);
         innerImage.setImageBitmap(rotated);
 
+        // Object
+        InputImage image = InputImage.fromBitmap(rotated, 0);
+
+        // Process the image
+        Task<List<Face>> result =
+                detector.process(image)
+                        .addOnSuccessListener(
+                                new OnSuccessListener<List<Face>>() {
+                                    @Override
+                                    public void onSuccess(List<Face> faces) {
+                                        // Task completed successfully
+                                        for (Face face : faces) {
+                                            Rect bounds = face.getBoundingBox();
+                                            float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
+                                            float rotZ = face.getHeadEulerAngleZ();  // Head is tilted sideways rotZ degrees
+
+                                            // If landmark detection was enabled (mouth, ears, eyes, cheeks, and
+                                            // nose available):
+                                            FaceLandmark leftEar = face.getLandmark(FaceLandmark.LEFT_EAR);
+                                            if (leftEar != null) {
+                                                PointF leftEarPos = leftEar.getPosition();
+                                            }
+
+                                            // If contour detection was enabled:
+                                            List<PointF> leftEyeContour =
+                                                    face.getContour(FaceContour.LEFT_EYE).getPoints();
+                                            List<PointF> upperLipBottomContour =
+                                                    face.getContour(FaceContour.UPPER_LIP_BOTTOM).getPoints();
+
+                                            // If classification was enabled:
+                                            if (face.getSmilingProbability() != null) {
+                                                float smileProb = face.getSmilingProbability();
+                                            }
+                                            if (face.getRightEyeOpenProbability() != null) {
+                                                float rightEyeOpenProb = face.getRightEyeOpenProbability();
+                                            }
+
+                                            // If face tracking was enabled:
+                                            if (face.getTrackingId() != null) {
+                                                int id = face.getTrackingId();
+                                            }
+                                        }
+                                    }
+                                })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Task failed with an exception
+                                        // ...
+                                    }
+                                });
     }
 
     @Override
