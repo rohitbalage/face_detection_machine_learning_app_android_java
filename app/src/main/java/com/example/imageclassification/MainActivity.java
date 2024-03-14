@@ -157,6 +157,11 @@ public class MainActivity extends AppCompatActivity {
         // Object
         InputImage image = InputImage.fromBitmap(rotated, 0);
 
+        Canvas canvas = new Canvas(rotated);
+        Paint p = new Paint();
+        p.setColor(Color.RED);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(10);
         // Process the image
         Task<List<Face>> result =
                 detector.process(image)
@@ -167,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
                                         // Task completed successfully
                                         for (Face face : faces) {
                                             Rect bounds = face.getBoundingBox();
+
+                                            canvas.drawRect(bounds, );
+
                                             float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
                                             float rotZ = face.getHeadEulerAngleZ();  // Head is tilted sideways rotZ degrees
 
@@ -196,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                                                 int id = face.getTrackingId();
                                             }
                                         }
+                                        innerImage.setImageBitmap(rotated);
                                     }
                                 })
                         .addOnFailureListener(
