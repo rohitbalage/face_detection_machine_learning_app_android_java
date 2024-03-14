@@ -162,6 +162,14 @@ public class MainActivity extends AppCompatActivity {
         p.setColor(Color.RED);
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(10);
+
+
+        Paint p2 = new Paint();
+        p2.setColor(Color.YELLOW);
+        p2.setStyle(Paint.Style.STROKE);
+        p2.setStrokeWidth(2);
+
+
         // Process the image
         Task<List<Face>> result =
                 detector.process(image)
@@ -173,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                                         for (Face face : faces) {
                                             Rect bounds = face.getBoundingBox();
 
-                                            canvas.drawRect(bounds, );
+                                            canvas.drawRect(bounds,p );
 
                                             float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
                                             float rotZ = face.getHeadEulerAngleZ();  // Head is tilted sideways rotZ degrees
@@ -188,12 +196,27 @@ public class MainActivity extends AppCompatActivity {
                                             // If contour detection was enabled:
                                             List<PointF> leftEyeContour =
                                                     face.getContour(FaceContour.LEFT_EYE).getPoints();
+
+                                            // draw counter
+                                            for(PointF point : leftEyeContour )
+                                            {
+                                                canvas.drawPoint(point.x, point.y,p2);
+                                            }
+
                                             List<PointF> upperLipBottomContour =
                                                     face.getContour(FaceContour.UPPER_LIP_BOTTOM).getPoints();
 
                                             // If classification was enabled:
                                             if (face.getSmilingProbability() != null) {
                                                 float smileProb = face.getSmilingProbability();
+                                                if(smileProb > 0.5)
+                                                {
+                                                  resultTv.setText("smiling");
+                                                }
+                                                else
+                                                {
+                                                    resultTv.setText("serious");
+                                                }
                                             }
                                             if (face.getRightEyeOpenProbability() != null) {
                                                 float rightEyeOpenProb = face.getRightEyeOpenProbability();
